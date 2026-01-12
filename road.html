@@ -53,7 +53,7 @@
 <body>
 
 <div class="container">
-    <canvas id="caminoCanvas" width="1600" height="500"></canvas>
+    <canvas id="caminoCanvas" width="1590" height="490"></canvas>
 </div>
 
 <script>
@@ -109,6 +109,18 @@
     }
 
     // --- 그리기 시작 ---
+
+    // 0-1. 캡쳐 가이드 선 (캔버스 전체 영역 표시)
+    ctx.save();
+    ctx.strokeStyle = "#ef4444"; // 빨간색 가이드 선
+    ctx.lineWidth = 2;
+    ctx.setLineDash([10, 5]); // 점선 패턴
+    ctx.beginPath();
+    // 캔버스 전체를 감싸는 가이드 선 (모든 텍스트와 x축 포함)
+    ctx.rect(0, 0, width, height);
+    ctx.stroke();
+    ctx.setLineDash([]); // 점선 해제
+    ctx.restore();
 
     // 0. 배경 그리드 (더 부드럽게)
     ctx.beginPath();
@@ -339,7 +351,7 @@
         
         // 반투명 처리
         ctx.save();
-        ctx.globalAlpha = 0.15; // 반투명 설정 (0.0 ~ 1.0)
+        ctx.globalAlpha = 0.3; // 70% 투명도 (30% 불투명)
         
         // 로고 그리기
         ctx.drawImage(logo, logoX, logoY, logoWidth, logoHeight);
