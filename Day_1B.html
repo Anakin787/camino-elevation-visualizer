@@ -413,7 +413,9 @@
             ctx.fillText(`${p.elev}m`, labelX, labelY - 20);
         } else {
             ctx.textAlign = "center";
-            const labelY = y - 40; // 모든 포인트에 동일한 간격 적용
+            // 론세스바예스는 y축으로 -10만큼 추가 이동
+            const isRoncesvalles = p.name === "론세스바예스";
+            const labelY = y - 40 - (isRoncesvalles ? 10 : 0); // 모든 포인트에 동일한 간격 적용
 
             ctx.font = "700 22px 'Pretendard'";
             ctx.fillStyle = "#2d3436";
