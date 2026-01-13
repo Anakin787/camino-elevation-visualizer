@@ -53,7 +53,7 @@
 <body>
 
 <div class="container">
-    <canvas id="caminoCanvas" width="1590" height="490"></canvas>
+    <canvas id="caminoCanvas" width="1800" height="490"></canvas>
 </div>
 
 <script>
@@ -62,11 +62,11 @@
     
     // 데이터 정의 (이동 순서대로)
     const points = [
-        { name: "생장", eng: "St-Jean", dist: 0, elev: 172, type: 'start' },
+        { name: "생장", eng: "Saint-Jean-Pied-de-Port", dist: 0, elev: 172, type: 'start' },
         { name: "온토", eng: "Honto", dist: 5.0, elev: 500, type: 'point' },
         { name: "오리손", eng: "Orisson", dist: 7.6, elev: 770, type: 'point' },
-        { name: "벤타르테아", eng: "Bentartea", dist: 16.2, elev: 1337, type: 'point' },
-        { name: "레포에더", eng: "Lepoeder", dist: 20.5, elev: 1430, type: 'max' },
+        { name: "벤타르테아", eng: "Collado de Bentartea", dist: 16.2, elev: 1337, type: 'point' },
+        { name: "레포에데르", eng: "Collado de Lepoeder", dist: 20.5, elev: 1430, type: 'max' },
         { name: "론세스바예스", eng: "Roncesvalles", dist: 24.2, elev: 945, type: 'end' },
     ];
 
@@ -74,7 +74,7 @@
     const yMin = 100; 
     const yMax = 1600; 
 
-    const padding = { top: 60, right: 60, bottom: 90, left: 60 }; 
+    const padding = { top: 60, right: 100, bottom: 90, left: 60 }; 
     const width = canvas.width;
     const height = canvas.height;
     const graphWidth = width - padding.left - padding.right;
@@ -181,12 +181,12 @@
         
         // 눈금 값 표시
         ctx.fillStyle = "#6b7280";
-        ctx.font = "bold 14px 'Pretendard'";
+        ctx.font = "bold 16px 'Pretendard'";
         ctx.textAlign = "center";
         ctx.fillText(d, xPos, axisY + 25);
         
         if (d === 0 || d === totalDist) {
-            ctx.font = "400 11px 'Pretendard'";
+            ctx.font = "400 13px 'Pretendard'";
             ctx.fillStyle = "#f59e0b"; // 노란색 톤
             ctx.fillText("km", xPos, axisY + 40);
         }
@@ -220,7 +220,7 @@
     
     // START 텍스트를 노란색 점 위에 배치
     ctx.fillStyle = "#f59e0b";
-    ctx.font = "bold 14px 'Pretendard'";
+    ctx.font = "bold 16px 'Pretendard'";
     ctx.textAlign = "center";
     ctx.fillText("START", startXPos, axisY - 18);
     
@@ -236,15 +236,15 @@
     
     // END 텍스트를 오렌지색 점 위에 배치
     ctx.fillStyle = "#f97316";
-    ctx.font = "bold 14px 'Pretendard'";
+    ctx.font = "bold 16px 'Pretendard'";
     ctx.textAlign = "center";
     ctx.fillText("END", endXPos, axisY - 18);
     
     // END 밑에 거리 표시
     ctx.fillStyle = "#6b7280";
-    ctx.font = "bold 14px 'Pretendard'";
+    ctx.font = "bold 16px 'Pretendard'";
     ctx.fillText(totalDist, endXPos, axisY + 25);
-    ctx.font = "400 11px 'Pretendard'";
+    ctx.font = "400 13px 'Pretendard'";
     ctx.fillStyle = "#f59e0b"; // 노란색 톤
     ctx.fillText("km", endXPos, axisY + 40);
 
@@ -273,11 +273,11 @@
     // 국경선 텍스트 박스 (양옆으로 두 개의 박스 배치)
     const borderTextY = (borderY + bottomY) / 2;
     const boxSpacing = 12; // 국경선과 박스 사이 간격
-    const boxPadding = 10;
-    const boxHeight = 30;
+    const boxPadding = 12;
+    const boxHeight = 34;
     
     // 텍스트 크기 측정
-    ctx.font = "bold 12px 'Pretendard'";
+    ctx.font = "bold 15px 'Pretendard'";
     const leftText = "스페인 나바라주";
     const rightText = "프랑스";
     const leftTextWidth = ctx.measureText(leftText).width;
@@ -299,7 +299,7 @@
     ctx.restore();
     
     ctx.fillStyle = "#ffffff"; // 흰색 텍스트로 대비
-    ctx.font = "bold 13px 'Pretendard'";
+    ctx.font = "bold 15px 'Pretendard'";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(leftText, leftBoxX + leftBoxWidth / 2, borderTextY);
@@ -320,7 +320,7 @@
     ctx.restore();
     
     ctx.fillStyle = "#ffffff"; // 흰색 텍스트로 대비
-    ctx.font = "bold 13px 'Pretendard'";
+    ctx.font = "bold 15px 'Pretendard'";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(rightText, rightBoxX + rightBoxWidth / 2, borderTextY);
@@ -340,8 +340,8 @@
         const midX = (currentX + nextX) / 2;
         const midY = (currentY + nextY) / 2;
         
-        const badgeW = 44;
-        const badgeH = 20;
+        const badgeW = 52;
+        const badgeH = 24;
         
         ctx.save();
         ctx.shadowColor = "rgba(0,0,0,0.15)";
@@ -359,7 +359,7 @@
         ctx.stroke();
         
         ctx.fillStyle = "#f97316"; // 오렌지 계열
-        ctx.font = "bold 11px 'Pretendard'";
+        ctx.font = "bold 13px 'Pretendard'";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(`${distDiff}km`, midX, midY + 1); 
@@ -393,20 +393,20 @@
         ctx.textAlign = "center";
         const labelY = y - 40; // 모든 포인트에 동일한 간격 적용
 
-        ctx.font = "700 18px 'Pretendard'";
+        ctx.font = "700 22px 'Pretendard'";
         ctx.fillStyle = "#2d3436";
         ctx.shadowColor = "rgba(255,255,255,0.9)";
         ctx.shadowBlur = 4;
         ctx.fillText(p.name, x, labelY);
         ctx.shadowBlur = 0;
 
-        ctx.font = "500 12px 'Pretendard'";
+        ctx.font = "500 14px 'Pretendard'";
         ctx.fillStyle = "#6b7280";
-        ctx.fillText(p.eng, x, labelY + 15);
+        ctx.fillText(p.eng, x, labelY + 18);
         
-        ctx.font = "600 12px 'Pretendard'";
+        ctx.font = "600 14px 'Pretendard'";
         ctx.fillStyle = "#f97316"; // 오렌지 계열
-        ctx.fillText(`${p.elev}m`, x, labelY - 16);
+        ctx.fillText(`${p.elev}m`, x, labelY - 20);
     });
 
     // 7. 로고 이미지 추가 (그래프 내부 여백 - 오른쪽 상단)
