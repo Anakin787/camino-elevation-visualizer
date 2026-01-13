@@ -270,29 +270,60 @@
     ctx.setLineDash([]);
     ctx.restore();
     
-    // 국경선 텍스트 배경 (점선 중간에 배치)
+    // 국경선 텍스트 박스 (양옆으로 두 개의 박스 배치)
     const borderTextY = (borderY + bottomY) / 2;
-    const textWidth = 180;
-    const textHeight = 28;
-    const rectX = borderX - textWidth / 2;
-    const rectY = borderTextY - textHeight / 2;
+    const boxSpacing = 12; // 국경선과 박스 사이 간격
+    const boxPadding = 10;
+    const boxHeight = 30;
+    
+    // 텍스트 크기 측정
+    ctx.font = "bold 12px 'Pretendard'";
+    const leftText = "스페인 나바라주";
+    const rightText = "프랑스";
+    const leftTextWidth = ctx.measureText(leftText).width;
+    const rightTextWidth = ctx.measureText(rightText).width;
+    
+    // 왼쪽 박스 (스페인 나바라주) - 진한 빨간색 배경으로 대비
+    const leftBoxWidth = leftTextWidth + (boxPadding * 2);
+    const leftBoxX = borderX - boxSpacing - leftBoxWidth;
+    const leftBoxY = borderTextY - boxHeight / 2;
     
     ctx.save();
-    ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+    ctx.fillStyle = "#dc2626"; // 진한 빨간색 배경
+    ctx.strokeStyle = "#991b1b"; // 더 진한 빨간색 테두리
+    ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.rect(rectX, rectY, textWidth, textHeight);
+    ctx.rect(leftBoxX, leftBoxY, leftBoxWidth, boxHeight);
     ctx.fill();
-    ctx.strokeStyle = "#ea580c";
-    ctx.lineWidth = 2;
     ctx.stroke();
     ctx.restore();
     
-    // 국경선 텍스트 (프랑스 → 스페인 나바라주)
-    ctx.fillStyle = "#ea580c";
-    ctx.font = "bold 12px 'Pretendard'";
+    ctx.fillStyle = "#ffffff"; // 흰색 텍스트로 대비
+    ctx.font = "bold 13px 'Pretendard'";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText("스페인 나바라주 ← 프랑스", borderX, borderTextY);
+    ctx.fillText(leftText, leftBoxX + leftBoxWidth / 2, borderTextY);
+    
+    // 오른쪽 박스 (프랑스) - 진한 파란색 배경으로 대비
+    const rightBoxWidth = rightTextWidth + (boxPadding * 2);
+    const rightBoxX = borderX + boxSpacing;
+    const rightBoxY = borderTextY - boxHeight / 2;
+    
+    ctx.save();
+    ctx.fillStyle = "#1e40af"; // 진한 파란색 배경
+    ctx.strokeStyle = "#1e3a8a"; // 더 진한 파란색 테두리
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.rect(rightBoxX, rightBoxY, rightBoxWidth, boxHeight);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+    
+    ctx.fillStyle = "#ffffff"; // 흰색 텍스트로 대비
+    ctx.font = "bold 13px 'Pretendard'";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(rightText, rightBoxX + rightBoxWidth / 2, borderTextY);
 
     // 5. 구간 거리 표시 (chip이 국경선 위에 그려짐)
     points.forEach((p, index) => {
