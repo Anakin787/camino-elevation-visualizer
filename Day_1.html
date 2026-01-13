@@ -12,7 +12,7 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            background-color: #f0f2f5;
+            background-color: #fffbeb; // 따뜻한 크림색 배경
             color: #2d3436;
         }
 
@@ -117,15 +117,15 @@
         ctx.moveTo(padding.left - 20, y);
         ctx.lineTo(width - padding.right + 20, y);
     }
-    ctx.strokeStyle = "#f3f4f6";
+    ctx.strokeStyle = "#fef3c7"; // 연한 노란색 톤
     ctx.lineWidth = 0.8;
     ctx.stroke();
 
-    // 1. 그라데이션 채우기 (보라색/핑크 계열로 부드럽게)
+    // 1. 그라데이션 채우기 (노란색/오렌지 계열로 부드럽게)
     const fillGradient = ctx.createLinearGradient(0, 0, 0, height);
-    fillGradient.addColorStop(0, "rgba(147, 51, 234, 0.25)"); // 보라색
-    fillGradient.addColorStop(0.5, "rgba(236, 72, 153, 0.2)"); // 핑크
-    fillGradient.addColorStop(1, "rgba(236, 72, 153, 0.0)");
+    fillGradient.addColorStop(0, "rgba(251, 191, 36, 0.25)"); // 노란색
+    fillGradient.addColorStop(0.5, "rgba(249, 115, 22, 0.2)"); // 오렌지
+    fillGradient.addColorStop(1, "rgba(249, 115, 22, 0.0)");
 
     const startX = getX(points[0].dist); // 생장 (오른쪽)
     const endX = getX(points[points.length-1].dist); // 론세스 (왼쪽)
@@ -140,10 +140,10 @@
     ctx.fillStyle = fillGradient;
     ctx.fill();
 
-    // 2. 메인 라인 (보라색 계열로 통일, 그림자 제거)
+    // 2. 메인 라인 (노란색/오렌지 계열로 통일)
     const strokeGradient = ctx.createLinearGradient(padding.left, 0, width - padding.right, 0);
-    strokeGradient.addColorStop(0, "#a855f7"); // 보라색 (왼쪽)
-    strokeGradient.addColorStop(1, "#ec4899"); // 핑크 (오른쪽)
+    strokeGradient.addColorStop(0, "#f97316"); // 오렌지 (왼쪽)
+    strokeGradient.addColorStop(1, "#fbbf24"); // 노란색 (오른쪽)
 
     ctx.beginPath();
     ctx.moveTo(getX(points[0].dist), getY(points[0].elev)); 
@@ -160,7 +160,7 @@
     ctx.beginPath();
     ctx.moveTo(padding.left, axisY);
     ctx.lineTo(width - padding.right, axisY);
-    ctx.strokeStyle = "#9ca3af"; 
+    ctx.strokeStyle = "#fcd34d"; // 노란색 톤
     ctx.lineWidth = 1.5;
     ctx.lineCap = "round";
     ctx.stroke();
@@ -175,7 +175,7 @@
         ctx.arc(xPos, axisY, 4, 0, Math.PI * 2);
         ctx.fillStyle = "#ffffff";
         ctx.fill();
-        ctx.strokeStyle = "#9ca3af";
+        ctx.strokeStyle = "#fcd34d"; // 노란색 톤
         ctx.lineWidth = 1.5;
         ctx.stroke();
         
@@ -187,7 +187,7 @@
         
         if (d === 0 || d === totalDist) {
             ctx.font = "400 11px 'Pretendard'";
-            ctx.fillStyle = "#9ca3af";
+            ctx.fillStyle = "#f59e0b"; // 노란색 톤
             ctx.fillText("km", xPos, axisY + 40);
         }
 
@@ -200,7 +200,7 @@
             ctx.moveTo(midX + 5, axisY - 5); // 꼬리 위 (오른쪽)
             ctx.lineTo(midX - 2, axisY);     // 머리 (왼쪽 방향)
             ctx.lineTo(midX + 5, axisY + 5); // 꼬리 아래 (오른쪽)
-            ctx.strokeStyle = "#9333ea"; // 진한 보라색
+            ctx.strokeStyle = "#f97316"; // 오렌지
             ctx.lineWidth = 3;
             ctx.lineCap = "round";
             ctx.lineJoin = "round";
@@ -208,34 +208,34 @@
         }
     }
     
-    // x축 시작점에 핑크색 점 추가 (dist=0, 오른쪽 끝)
+    // x축 시작점에 노란색 점 추가 (dist=0, 오른쪽 끝)
     const startXPos = getX(0);
     ctx.beginPath();
     ctx.arc(startXPos, axisY, 7, 0, Math.PI * 2);
-    ctx.fillStyle = "#ec4899"; // 핑크 계열
+    ctx.fillStyle = "#fbbf24"; // 노란색 계열
     ctx.fill();
-    ctx.strokeStyle = "#db2777"; // 진한 핑크
+    ctx.strokeStyle = "#f59e0b"; // 진한 노란색
     ctx.lineWidth = 2.5;
     ctx.stroke();
     
-    // START 텍스트를 핑크색 점 위에 배치
-    ctx.fillStyle = "#ec4899";
+    // START 텍스트를 노란색 점 위에 배치
+    ctx.fillStyle = "#f59e0b";
     ctx.font = "bold 14px 'Pretendard'";
     ctx.textAlign = "center";
     ctx.fillText("START", startXPos, axisY - 18);
     
-    // x축 끝점에 보라색 점 추가 (dist=25, 왼쪽 끝)
+    // x축 끝점에 오렌지색 점 추가 (dist=25, 왼쪽 끝)
     const endXPos = getX(totalDist);
     ctx.beginPath();
     ctx.arc(endXPos, axisY, 7, 0, Math.PI * 2);
-    ctx.fillStyle = "#a855f7"; // 보라색 계열
+    ctx.fillStyle = "#f97316"; // 오렌지 계열
     ctx.fill();
-    ctx.strokeStyle = "#9333ea"; // 진한 보라색
+    ctx.strokeStyle = "#ea580c"; // 진한 오렌지
     ctx.lineWidth = 2.5;
     ctx.stroke();
     
-    // END 텍스트를 보라색 점 위에 배치
-    ctx.fillStyle = "#a855f7";
+    // END 텍스트를 오렌지색 점 위에 배치
+    ctx.fillStyle = "#f97316";
     ctx.font = "bold 14px 'Pretendard'";
     ctx.textAlign = "center";
     ctx.fillText("END", endXPos, axisY - 18);
@@ -245,7 +245,7 @@
     ctx.font = "bold 14px 'Pretendard'";
     ctx.fillText(totalDist, endXPos, axisY + 25);
     ctx.font = "400 11px 'Pretendard'";
-    ctx.fillStyle = "#9ca3af";
+    ctx.fillStyle = "#f59e0b"; // 노란색 톤
     ctx.fillText("km", endXPos, axisY + 40);
 
     // 4. 구간 거리 표시
@@ -277,11 +277,11 @@
         ctx.fill();
         ctx.restore();
         
-        ctx.strokeStyle = "rgba(168, 85, 247, 0.15)"; 
+        ctx.strokeStyle = "rgba(249, 115, 22, 0.15)"; 
         ctx.lineWidth = 1;
         ctx.stroke();
         
-        ctx.fillStyle = "#9333ea"; // 보라색 계열
+        ctx.fillStyle = "#f97316"; // 오렌지 계열
         ctx.font = "bold 11px 'Pretendard'";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
@@ -298,7 +298,7 @@
         ctx.beginPath();
         ctx.moveTo(x, y);
         ctx.lineTo(x, axisY - 10);
-        ctx.strokeStyle = "rgba(209, 213, 219, 0.4)";
+        ctx.strokeStyle = "rgba(254, 243, 199, 0.5)"; // 연한 노란색 톤
         ctx.setLineDash([4, 4]);
         ctx.lineWidth = 1;
         ctx.stroke();
@@ -310,7 +310,7 @@
         ctx.fillStyle = "#ffffff";
         ctx.fill();
         ctx.lineWidth = 2.5;
-        ctx.strokeStyle = "#a855f7"; // 보라색 계열
+        ctx.strokeStyle = "#f97316"; // 오렌지 계열
         ctx.stroke();
 
         ctx.textAlign = "center";
@@ -328,7 +328,7 @@
         ctx.fillText(p.eng, x, labelY + 15);
         
         ctx.font = "600 12px 'Pretendard'";
-        ctx.fillStyle = "#ec4899"; // 핑크 계열
+        ctx.fillStyle = "#f97316"; // 오렌지 계열
         ctx.fillText(`${p.elev}m`, x, labelY - 16);
     });
 
