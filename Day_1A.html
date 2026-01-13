@@ -248,47 +248,7 @@
     ctx.fillStyle = "#f59e0b"; // 노란색 톤
     ctx.fillText("km", endXPos, axisY + 40);
 
-    // 4. 구간 거리 표시
-    points.forEach((p, index) => {
-        if (index >= points.length - 1) return;
-        
-        const nextP = points[index + 1];
-        const distDiff = Math.abs(nextP.dist - p.dist).toFixed(1);
-        
-        const currentX = getX(p.dist);
-        const nextX = getX(nextP.dist);
-        const currentY = getY(p.elev);
-        const nextY = getY(nextP.elev);
-        
-        const midX = (currentX + nextX) / 2;
-        const midY = (currentY + nextY) / 2;
-        
-        const badgeW = 44;
-        const badgeH = 20;
-        
-        ctx.save();
-        ctx.shadowColor = "rgba(0,0,0,0.15)";
-        ctx.shadowBlur = 4;
-        ctx.shadowOffsetY = 2;
-        
-        ctx.beginPath();
-        ctx.roundRect(midX - badgeW/2, midY - badgeH/2, badgeW, badgeH, 10);
-        ctx.fillStyle = "#ffffff";
-        ctx.fill();
-        ctx.restore();
-        
-        ctx.strokeStyle = "rgba(249, 115, 22, 0.15)"; 
-        ctx.lineWidth = 1;
-        ctx.stroke();
-        
-        ctx.fillStyle = "#f97316"; // 오렌지 계열
-        ctx.font = "bold 11px 'Pretendard'";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(`${distDiff}km`, midX, midY + 1); 
-    });
-
-    // 5. 국경선 표시 (벤타르테아와 레포에더 사이)
+    // 4. 국경선 표시 (벤타르테아와 레포에더 사이) - chip 뒤에 숨김
     const bentarteaDist = 16.2;
     const bentarteaElev = 1337;
     const lepoederDist = 20.5;
@@ -332,7 +292,47 @@
     ctx.font = "bold 12px 'Pretendard'";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText("프랑스 → 스페인 나바라주", borderX, borderTextY);
+    ctx.fillText("스페인 나바라주 ← 프랑스", borderX, borderTextY);
+
+    // 5. 구간 거리 표시 (chip이 국경선 위에 그려짐)
+    points.forEach((p, index) => {
+        if (index >= points.length - 1) return;
+        
+        const nextP = points[index + 1];
+        const distDiff = Math.abs(nextP.dist - p.dist).toFixed(1);
+        
+        const currentX = getX(p.dist);
+        const nextX = getX(nextP.dist);
+        const currentY = getY(p.elev);
+        const nextY = getY(nextP.elev);
+        
+        const midX = (currentX + nextX) / 2;
+        const midY = (currentY + nextY) / 2;
+        
+        const badgeW = 44;
+        const badgeH = 20;
+        
+        ctx.save();
+        ctx.shadowColor = "rgba(0,0,0,0.15)";
+        ctx.shadowBlur = 4;
+        ctx.shadowOffsetY = 2;
+        
+        ctx.beginPath();
+        ctx.roundRect(midX - badgeW/2, midY - badgeH/2, badgeW, badgeH, 10);
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+        ctx.restore();
+        
+        ctx.strokeStyle = "rgba(249, 115, 22, 0.15)"; 
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        
+        ctx.fillStyle = "#f97316"; // 오렌지 계열
+        ctx.font = "bold 11px 'Pretendard'";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(`${distDiff}km`, midX, midY + 1); 
+    });
 
     // 6. 포인트 마커
     points.forEach((p, index) => {
