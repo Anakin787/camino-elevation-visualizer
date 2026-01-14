@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camino de Santiago Profile - Modern</title>
+    <style>
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #fffbeb; 
+            color: #2d3436;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+            width: 95%;
+            max-width: 1700px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+            color: #2d3436;
+            letter-spacing: -0.5px;
+        }
+
+        p.subtitle {
+            color: #636e72;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        canvas {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+</head>
+<body>
+
+<div class="container">
+    <canvas id="caminoCanvas" width="1800" height="490"></canvas>
+</div>
+
+<script>
+    const canvas = document.getElementById('caminoCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    const points = [
+        { name: "포르토마린", eng: "Portomarín", dist: 0, elev: 330, type: 'start' },
+        { name: "곤사르", eng: "Gonzar", dist: 7.9, elev: 550, type: 'point' },
+        { name: "오스피탈 다 크루스", eng: "Hospital da Cruz", dist: 11.5, elev: 680, type: 'point' },
+        { name: "리곤데", eng: "Ligonde", dist: 16.2, elev: 630, type: 'point' },
+        { name: "팔라스 데 레이", eng: "Palas de Rei", dist: 24.8, elev: 580, type: 'end' },
+    ];
+
+    const totalDist = 24.8
+    const yMin = 300; 
+    const yMax = 800; 
+
+    const padding = { top: 60, right: 100, bottom: 90, left: 120 }; 
+    const width = canvas.width;
+    const height = canvas.height;
+    const graphWidth = width - padding.left - padding.right;
+    const graphHeight = height - padding.top - padding.bottom;
+
+    // [좌우 반전 설정]
+    // dist 0 (오르니요스) -> 오른쪽 끝 (width - padding.right)
+    // dist totalDist (부르고스) -> 왼쪽 끝 (padding.left)
+    function getX(dist) {
+        return (width - padding.right) - (dist / totalDist * graphWidth);
+    }
+
+    function getY(elev) {
+        return height - padding.bottom - ((elev - yMin) / (yMax - yMin) * graphHeight);
+    }
+
+    // 부드러운 곡선 로직
+    function traceSmoothCurve(ctx, points) {
+        for (let i = 0; i < points.length - 1; i++) {
+            const curr = points[i];
+            const next = points[i+1];
+            
+            // 제어점 계산
+            const cp1x = getX(curr.dist) - (getX(curr.dist) - getX(next.dist)) * 0.4;
+            const cp1y = getY(curr.elev);
+            const cp2x = getX(next.dist) + (getX(curr.dist) - getX(next.dist)) * 0.4;
+            const cp2y = getY(next.elev);
+            
+            ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, getX(next.dist), getY(next.elev));
+        }
+    }
+
+    // --- 그리기 시작 ---
+
+    // 0. 배경 그리드 (더 부드럽게)
+    ctx.beginPath();
+    for (let h = 200; h <= yMax; h += 200) {
+        if (h < yMin) continue; 
+        const y = getY(h);
+        ctx.moveTo(padding.left - 20, y);
+        ctx.lineTo(width - padding.right + 20, y);
+    }
+    ctx.strokeStyle = "#fef3c7"; // 연한 노란색 톤
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+
+    // 1. 그라데이션 채우기 (노란색/오렌지 계열로 부드럽게)
+    const fillGradient = ctx.createLinearGradient(0, 0, 0, height);
+    fillGradient.addColorStop(0, "rgba(251, 191, 36, 0.25)"); // 노란색
+    fillGradient.addColorStop(0.5, "rgba(249, 115, 22, 0.2)"); // 오렌지
+    fillGradient.addColorStop(1, "rgba(249, 115, 22, 0.0)");
+
+    const startX = getX(points[0].dist); // 오르니요스 (오른쪽)
+    const endX = getX(points[points.length-1].dist); // 부르고스 (왼쪽)
+    const bottomY = height - padding.bottom;
+
+    ctx.beginPath();
+    ctx.moveTo(startX, bottomY);
+    ctx.lineTo(startX, getY(points[0].elev));
+    traceSmoothCurve(ctx, points);
+    ctx.lineTo(endX, bottomY);
+    ctx.closePath(); 
+    ctx.fillStyle = fillGradient;
+    ctx.fill();
+
+    // 2. 메인 라인 (노란색/오렌지 계열로 통일)
+    const strokeGradient = ctx.createLinearGradient(padding.left, 0, width - padding.right, 0);
+    strokeGradient.addColorStop(0, "#f97316"); // 오렌지 (왼쪽)
+    strokeGradient.addColorStop(1, "#fbbf24"); // 노란색 (오른쪽)
+
+    ctx.beginPath();
+    ctx.moveTo(getX(points[0].dist), getY(points[0].elev)); 
+    traceSmoothCurve(ctx, points);
+    ctx.strokeStyle = strokeGradient;
+    ctx.lineWidth = 5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+
+    // 3. X축 디자인 (구간별 화살표 하나, 진행방향 수정)
+    const axisY = height - padding.bottom + 35; // 그래프와 더 띄우기
+
+    ctx.beginPath();
+    ctx.moveTo(padding.left, axisY);
+    ctx.lineTo(width - padding.right, axisY);
+    ctx.strokeStyle = "#fcd34d"; // 노란색 톤
+    ctx.lineWidth = 1.5;
+    ctx.lineCap = "round";
+    ctx.stroke();
+
+    const step = 5; 
+    ctx.textBaseline = "middle"; 
+
+    for (let d = 0; d <= totalDist; d += step) {
+        const xPos = getX(d); // 0일때 오른쪽, 25일때 왼쪽
+        
+        ctx.beginPath();
+        ctx.arc(xPos, axisY, 4, 0, Math.PI * 2);
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+        ctx.strokeStyle = "#fcd34d"; // 노란색 톤
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        
+        // 눈금 값 표시
+        ctx.fillStyle = "#6b7280";
+        ctx.font = "bold 16px 'Pretendard'";
+        ctx.textAlign = "center";
+        ctx.fillText(d, xPos, axisY + 25);
+        
+        if (d === 0 || d === totalDist) {
+            ctx.font = "400 13px 'Pretendard'";
+            ctx.fillStyle = "#f59e0b"; // 노란색 톤
+            ctx.fillText("km", xPos, axisY + 40);
+        }
+
+        // 진행 방향 화살표 (왼쪽 <- 방향으로 변경)
+        if (d < totalDist && d + step <= totalDist) {
+            const nextX = getX(d + step);
+            const midX = (xPos + nextX) / 2;
+            
+            ctx.beginPath();
+            ctx.moveTo(midX + 5, axisY - 5); // 꼬리 위 (오른쪽)
+            ctx.lineTo(midX - 2, axisY);     // 머리 (왼쪽 방향)
+            ctx.lineTo(midX + 5, axisY + 5); // 꼬리 아래 (오른쪽)
+            ctx.strokeStyle = "#f97316"; // 오렌지
+            ctx.lineWidth = 3;
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+            ctx.stroke();
+        }
+    }
+    
+    // x축 시작점에 노란색 점 추가 (dist=0, 오른쪽 끝)
+    const startXPos = getX(0);
+    ctx.beginPath();
+    ctx.arc(startXPos, axisY, 7, 0, Math.PI * 2);
+    ctx.fillStyle = "#fbbf24"; // 노란색 계열
+    ctx.fill();
+    ctx.strokeStyle = "#f59e0b"; // 진한 노란색
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+    
+    // START 텍스트를 노란색 점 위에 배치
+    ctx.fillStyle = "#f59e0b";
+    ctx.font = "bold 16px 'Pretendard'";
+    ctx.textAlign = "center";
+    ctx.fillText("START", startXPos, axisY - 18);
+    
+    // x축 끝점에 오렌지색 점 추가 (dist=25, 왼쪽 끝)
+    const endXPos = getX(totalDist);
+    ctx.beginPath();
+    ctx.arc(endXPos, axisY, 7, 0, Math.PI * 2);
+    ctx.fillStyle = "#f97316"; // 오렌지 계열
+    ctx.fill();
+    ctx.strokeStyle = "#ea580c"; // 진한 오렌지
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+    
+    // END 텍스트를 오렌지색 점 위에 배치
+    ctx.fillStyle = "#f97316";
+    ctx.font = "bold 16px 'Pretendard'";
+    ctx.textAlign = "center";
+    ctx.fillText("END", endXPos, axisY - 18);
+    
+    // END 밑에 거리 표시
+    ctx.fillStyle = "#6b7280";
+    ctx.font = "bold 16px 'Pretendard'";
+    ctx.fillText(totalDist, endXPos, axisY + 25);
+    ctx.font = "400 13px 'Pretendard'";
+    ctx.fillStyle = "#f59e0b"; // 노란색 톤
+    ctx.fillText("km", endXPos, axisY + 40);
+
+    // 4. 구간 거리 표시
+    points.forEach((p, index) => {
+        if (index >= points.length - 1) return;
+        
+        // hidden 타입 포인트는 건너뛰기
+        if (p.type === 'hidden') return;
+        
+        // 다음 visible 포인트 찾기 (hidden 포인트 건너뛰기)
+        let nextVisibleIndex = index + 1;
+        while (nextVisibleIndex < points.length && points[nextVisibleIndex].type === 'hidden') {
+            nextVisibleIndex++;
+        }
+        
+        // 다음 visible 포인트가 없으면 종료
+        if (nextVisibleIndex >= points.length) return;
+        
+        const nextP = points[nextVisibleIndex];
+        const distDiff = Math.abs(nextP.dist - p.dist).toFixed(1);
+        
+        // 구간 내에 hidden 포인트가 있는지 확인
+        let hasHidden = false;
+        let hiddenElev = null;
+        let hiddenDist = null;
+        for (let i = index + 1; i < nextVisibleIndex; i++) {
+            if (points[i].type === 'hidden') {
+                hasHidden = true;
+                hiddenElev = points[i].elev;
+                hiddenDist = points[i].dist;
+                break;
+            }
+        }
+        
+        const currentX = getX(p.dist);
+        const nextX = getX(nextP.dist);
+        const currentY = getY(p.elev);
+        const nextY = getY(nextP.elev);
+        
+        // hidden 포인트가 있으면 그 거리와 고도 위치에 badge 배치
+        const midX = hasHidden && hiddenDist !== null ? getX(hiddenDist) : (currentX + nextX) / 2;
+        const midY = hasHidden && hiddenElev ? getY(hiddenElev) : (currentY + nextY) / 2;
+        
+        const badgeW = 52;
+        const badgeH = 24;
+        
+        ctx.save();
+        ctx.shadowColor = "rgba(0,0,0,0.15)";
+        ctx.shadowBlur = 4;
+        ctx.shadowOffsetY = 2;
+        
+        ctx.beginPath();
+        ctx.roundRect(midX - badgeW/2, midY - badgeH/2, badgeW, badgeH, 10);
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+        ctx.restore();
+        
+        ctx.strokeStyle = "rgba(249, 115, 22, 0.15)"; 
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        
+        ctx.fillStyle = "#f97316"; // 오렌지 계열
+        ctx.font = "bold 13px 'Pretendard'";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(`${distDiff}km`, midX, midY + 1); 
+    });
+
+    // 6. 포인트 마커
+    points.forEach((p, index) => {
+        const x = getX(p.dist);
+        const y = getY(p.elev);
+        const isStart = index === 0;
+        const isEnd = index === points.length - 1;
+
+        // hidden 타입이면 점선과 마커 표시하지 않음
+        if (p.type !== 'hidden') {
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x, axisY - 10);
+            ctx.strokeStyle = "rgba(254, 243, 199, 0.5)"; // 연한 노란색 톤
+            ctx.setLineDash([4, 4]);
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // 모든 지점을 동일한 스타일로 표시
+            ctx.beginPath();
+            ctx.arc(x, y, 6, 0, Math.PI * 2);
+            ctx.fillStyle = "#ffffff";
+            ctx.fill();
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = "#f97316"; // 오렌지 계열
+            ctx.stroke();
+        }
+
+        // hidden 타입이면 텍스트 표시하지 않음
+        if (p.type !== 'hidden') {
+            let labelY = y - 40;
+            let labelX = x;
+
+
+            // 라스 에레리아스: 우측으로 5px 이동
+            if (p.name === "라스 에레리아스") {
+                labelX = x + 5;
+            }
+            
+            ctx.textAlign = "center";
+
+            ctx.font = "700 22px 'Pretendard'";
+            ctx.fillStyle = "#2d3436";
+            ctx.shadowColor = "rgba(255,255,255,0.9)";
+            ctx.shadowBlur = 4;
+            ctx.fillText(p.name, labelX, labelY);
+            ctx.shadowBlur = 0;
+
+            ctx.font = "500 14px 'Pretendard'";
+            ctx.fillStyle = "#6b7280";
+            ctx.fillText(p.eng, labelX, labelY + 18);
+            
+            ctx.font = "600 14px 'Pretendard'";
+            ctx.fillStyle = "#f97316"; // 오렌지 계열
+            ctx.fillText(`${p.elev}m`, labelX, labelY - 20);
+        }
+    });
+
+    // 7. 로고 이미지 추가 (그래프 내부 왼쪽 여백, 흰색 여백에 잘 보이게)
+    const logo = new Image();
+    logo.onload = function() {
+        // 로고 크기 조정 (Day_1A.html과 동일하게)
+        const logoWidth = 250;
+        const logoHeight = (logo.height / logo.width) * logoWidth;
+        
+        // 그래프 내부 우측 상단에 배치
+        const logoX = width - padding.right - logoWidth - 60;
+        const logoY = padding.top;
+                
+        // 로고 그리기 (마지막에 그려서 다른 요소 위에 표시)
+        ctx.drawImage(logo, logoX, logoY, logoWidth, logoHeight);
+    };
+    logo.onerror = function() {
+        console.error('로고 이미지를 로드할 수 없습니다: logo.png');
+    };
+    logo.src = 'logo.png';
+</script>
+
+</body>
+</html>
