@@ -62,19 +62,20 @@
     
     // 데이터 정의 (이동 순서대로) - San Juan de Ortega → Belorado 루트
     const points = [
-        { name: "산후안데오르테가", eng: "San Juan de Ortega", dist: 0, elev: 1050, type: 'start' },
-        { name: "비야프랑카 몬테스 데 오카", eng: "Villafranca Montes de Oca", dist: 12.0, elev: 950, type: 'point' },
-        { name: "에스피노사 델 카미노", eng: "Espinosa del Camino", dist: 15.6, elev: 900, type: 'point' },
-        { name: "비얌비스티아", eng: "Villambistia", dist: 17.2, elev: 920, type: 'point' },
-        { name: "토산토스", eng: "Tosantos", dist: 19.1, elev: 850, type: 'point' },
-        { name: "벨로라도", eng: "Belorado", dist: 23.9, elev: 770, type: 'end' },
+        { name: "벨로라도", eng: "Belorado", dist: 0, elev: 770, type: 'start' },
+        { name: "토산토스", eng: "Tosantos", dist: 4.8, elev: 850, type: 'point' },
+        { name: "비얌비스티아", eng: "Villambistia", dist: 6.7, elev: 920, type: 'point' },
+        { name: "에스피노사", eng: "Espinosa del Camino", dist: 8.3, elev: 900, type: 'point' },
+        { name: "비야프랑카 몬테스", eng: "Villafranca Montes de Oca", dist: 11.9, elev: 950, type: 'point' },
+        { name: "", eng: "", dist: 17.9, elev: 1150, type: 'hidden' },
+        { name: "산후안", eng: "San Juan de Ortega", dist: 23.9, elev: 1050, type: 'end' },
     ];
 
     const totalDist = 23.9; 
-    const yMin = 600; 
+    const yMin = 700; 
     const yMax = 1200; 
 
-    const padding = { top: 60, right: 100, bottom: 90, left: 60 }; 
+    const padding = { top: 60, right: 100, bottom: 90, left: 70 }; 
     const width = canvas.width;
     const height = canvas.height;
     const graphWidth = width - padding.left - padding.right;
@@ -252,19 +253,50 @@
     points.forEach((p, index) => {
         if (index >= points.length - 1) return;
         
-        const nextP = points[index + 1];
+        // hidden 타입 포인트는 건너뛰기
+        if (p.type === 'hidden') return;
+        
+        // 다음 visible 포인트 찾기 (hidden 포인트 건너뛰기)
+        let nextVisibleIndex = index + 1;
+        while (nextVisibleIndex < points.length && points[nextVisibleIndex].type === 'hidden') {
+            nextVisibleIndex++;
+        }
+        
+        // 다음 visible 포인트가 없으면 종료
+        if (nextVisibleIndex >= points.length) return;
+        
+        const nextP = points[nextVisibleIndex];
         const distDiff = Math.abs(nextP.dist - p.dist).toFixed(1);
+        
+        // 구간 내에 hidden 포인트가 있는지 확인하고 최고 고도 찾기
+        let maxElev = Math.max(p.elev, nextP.elev);
+        let hasHidden = false;
+        let hiddenElev = null;
+        let hiddenDist = null;
+        for (let i = index + 1; i < nextVisibleIndex; i++) {
+            if (points[i].type === 'hidden') {
+                hasHidden = true;
+                if (points[i].elev > maxElev) {
+                    maxElev = points[i].elev;
+                    hiddenElev = points[i].elev;
+                    hiddenDist = points[i].dist;
+                }
+            }
+        }
         
         const currentX = getX(p.dist);
         const nextX = getX(nextP.dist);
         const currentY = getY(p.elev);
         const nextY = getY(nextP.elev);
+        const maxY = getY(maxElev);
         
-        const midX = (currentX + nextX) / 2;
-        const midY = (currentY + nextY) / 2;
+        // hidden 포인트가 있으면 그 거리와 고도 위치에 badge 배치
+        const midX = hasHidden && hiddenDist !== null ? getX(hiddenDist) : (currentX + nextX) / 2;
+        const midY = hasHidden && hiddenElev ? getY(hiddenElev) : (currentY + nextY) / 2;
         
         const badgeW = 52;
-        const badgeH = 24;
+        // hidden 구간의 고도를 고려하여 badge 높이 조정
+        const badgeH = maxElev > Math.max(p.elev, nextP.elev) ? 28 : 24;
         
         ctx.save();
         ctx.shadowColor = "rgba(0,0,0,0.15)";
@@ -295,43 +327,49 @@
         const isStart = index === 0;
         const isEnd = index === points.length - 1;
 
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(x, axisY - 10);
-        ctx.strokeStyle = "rgba(254, 243, 199, 0.5)"; // 연한 노란색 톤
-        ctx.setLineDash([4, 4]);
-        ctx.lineWidth = 1;
-        ctx.stroke();
-        ctx.setLineDash([]);
+        // hidden 타입이면 점선과 마커 표시하지 않음
+        if (p.type !== 'hidden') {
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x, axisY - 10);
+            ctx.strokeStyle = "rgba(254, 243, 199, 0.5)"; // 연한 노란색 톤
+            ctx.setLineDash([4, 4]);
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.setLineDash([]);
 
-        // 모든 지점을 동일한 스타일로 표시
-        ctx.beginPath();
-        ctx.arc(x, y, 6, 0, Math.PI * 2);
-        ctx.fillStyle = "#ffffff";
-        ctx.fill();
-        ctx.lineWidth = 2.5;
-        ctx.strokeStyle = "#f97316"; // 오렌지 계열
-        ctx.stroke();
+            // 모든 지점을 동일한 스타일로 표시
+            ctx.beginPath();
+            ctx.arc(x, y, 6, 0, Math.PI * 2);
+            ctx.fillStyle = "#ffffff";
+            ctx.fill();
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = "#f97316"; // 오렌지 계열
+            ctx.stroke();
+        }
 
-        const labelY = y - 40;
-        const labelX = x;
-        
-        ctx.textAlign = "center";
+        // hidden 타입이면 텍스트 표시하지 않음
+        if (p.type !== 'hidden') {
+            const labelY = y - 40;
+            const labelX = x;
+            
+            ctx.textAlign = "center";
 
-        ctx.font = "700 22px 'Pretendard'";
-        ctx.fillStyle = "#2d3436";
-        ctx.shadowColor = "rgba(255,255,255,0.9)";
-        ctx.shadowBlur = 4;
-        ctx.fillText(p.name, labelX, labelY);
-        ctx.shadowBlur = 0;
+            ctx.font = "700 22px 'Pretendard'";
+            ctx.fillStyle = "#2d3436";
+            ctx.shadowColor = "rgba(255,255,255,0.9)";
+            ctx.shadowBlur = 4;
+            ctx.fillText(p.name, labelX, labelY);
+            ctx.shadowBlur = 0;
 
-        ctx.font = "500 14px 'Pretendard'";
-        ctx.fillStyle = "#6b7280";
-        ctx.fillText(p.eng, labelX, labelY + 18);
-        
-        ctx.font = "600 14px 'Pretendard'";
-        ctx.fillStyle = "#f97316"; // 오렌지 계열
-        ctx.fillText(`${p.elev}m`, labelX, labelY - 20);
+            ctx.font = "500 14px 'Pretendard'";
+            ctx.fillStyle = "#6b7280";
+            ctx.fillText(p.eng, labelX, labelY + 18);
+            
+            ctx.font = "600 14px 'Pretendard'";
+            ctx.fillStyle = "#f97316"; // 오렌지 계열
+            ctx.fillText(`${p.elev}m`, labelX, labelY - 20);
+        }
     });
 
     // 6. 로고 이미지 추가 (그래프 내부 왼쪽 여백, 흰색 여백에 잘 보이게)

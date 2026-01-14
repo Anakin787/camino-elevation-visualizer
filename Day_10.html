@@ -62,11 +62,13 @@
     
     // 데이터 정의 (이동 순서대로) - Belorado → Santo Domingo de la Calzada 루트
     const points = [
-        { name: "벨로라도", eng: "Belorado", dist: 0, elev: 770, type: 'start' },
-        { name: "비야마요르델리오", eng: "Villamayor del Río", dist: 4.6, elev: 750, type: 'point' },
-        { name: "레데시야델카미노", eng: "Redecilla del Camino", dist: 11.6, elev: 730, type: 'point' },
-        { name: "그라뇬", eng: "Grañón", dist: 15.5, elev: 720, type: 'point' },
-        { name: "산토도밍고", eng: "Santo Domingo de la Calzada", dist: 22.0, elev: 640, type: 'end' },
+        { name: "산토도밍고", eng: "Santo Domingo de la Calzada", dist: 0, elev: 640, type: 'start' },
+        { name: "그라뇬", eng: "Grañón", dist: 6.5, elev: 720, type: 'point' },
+        { name: "레데시야", eng: "Redecilla del Camino", dist: 10.4, elev: 730, type: 'point' },
+        { name: "까스틸델가도", eng: "Castildelgado", dist: 12, elev: 760, type: 'point' },
+        { name: "빌로리아", eng: "Viloria de Rioja", dist: 14, elev: 800, type: 'point' },
+        { name: "비야마요르", eng: "Villamayor del Rio", dist: 17.4, elev: 790, type: 'point' },
+        { name: "벨로라도", eng: "Belorado", dist: 22.0, elev: 770, type: 'end' },
     ];
 
     const totalDist = 22.0; 
@@ -288,9 +290,9 @@
     });
 
     // 5. 주 경계선 표시 (레데시야델카미노와 그라뇬 사이) - Castilla y León → La Rioja
-    const redecillaDist = 11.6;
+    const redecillaDist = 10.4;
     const redecillaElev = 730;
-    const granonDist = 15.5;
+    const granonDist = 6.5;
     const granonElev = 720;
     const borderDist = (redecillaDist + granonDist) / 2; // 중간 지점
     const borderX = getX(borderDist);
@@ -325,12 +327,12 @@
     
     // 텍스트 크기 측정
     ctx.font = "bold 15px 'Pretendard'";
-    const leftText = "라 리오하 주";
-    const rightText = "카스티야이레온 주";
+    const leftText = "카스티야 이 레온 주";
+    const rightText = "라 리오하 주";
     const leftTextWidth = ctx.measureText(leftText).width;
     const rightTextWidth = ctx.measureText(rightText).width;
     
-    // 왼쪽 박스 (라 리오하 주) - 빨간색 배경
+    // 왼쪽 박스 (카스티야이레온 주) - 빨간색 배경
     const leftBoxWidth = leftTextWidth + (boxPadding * 2);
     const leftBoxX = borderX - boxSpacing - leftBoxWidth;
     const leftBoxY = borderTextY - boxHeight / 2;
@@ -351,7 +353,7 @@
     ctx.textBaseline = "middle";
     ctx.fillText(leftText, leftBoxX + leftBoxWidth / 2, borderTextY);
     
-    // 오른쪽 박스 (카스티야이레온 주) - 빨간색 배경
+    // 오른쪽 박스 (라 리오하 주) - 빨간색 배경
     const rightBoxWidth = rightTextWidth + (boxPadding * 2);
     const rightBoxX = borderX + boxSpacing;
     const rightBoxY = borderTextY - boxHeight / 2;
@@ -397,7 +399,7 @@
         ctx.strokeStyle = "#f97316"; // 오렌지 계열
         ctx.stroke();
 
-        const labelY = y - 40;
+        const labelY = p.name === "레데시야" ? y - 50 : y - 40;
         const labelX = x;
         
         ctx.textAlign = "center";

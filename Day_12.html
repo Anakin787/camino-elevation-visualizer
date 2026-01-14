@@ -62,12 +62,14 @@
     
     // 데이터 정의 (이동 순서대로) - Burgos → San Juan de Ortega 루트
     const points = [
-        { name: "부르고스", eng: "Burgos", dist: 0, elev: 860, type: 'start' },
-        { name: "비야프리아", eng: "Villafría", dist: 7.8, elev: 900, type: 'point' },
-        { name: "카르데뉴엘라 리오피코", eng: "Cardeñuela Riopico", dist: 13.8, elev: 920, type: 'point' },
-        { name: "아타푸에르카", eng: "Atapuerca", dist: 17.8, elev: 970, type: 'point' },
-        { name: "아헤스", eng: "Agés", dist: 21.8, elev: 1000, type: 'point' },
-        { name: "산후안데오르테가", eng: "San Juan de Ortega", dist: 25.8, elev: 1020, type: 'end' },
+        { name: "산후안", eng: "San Juan de Ortega", dist: 0, elev: 1020, type: 'start' },
+        { name: "아헤스", eng: "Agés", dist: 3.6, elev: 1000, type: 'point' },
+        { name: "아타푸에르카", eng: "Atapuerca", dist: 6.1, elev: 970, type: 'point' },
+        { name: "", eng: "", dist: 9, elev: 1080, type: 'hidden' },
+        { name: "까르데뉴엘라", eng: "Cardeñuela Riopico", dist: 12.3, elev: 920, type: 'point' },
+        { name: "오르바네하", eng: "Orbaneja Riopico", dist: 14.3, elev: 910, type: 'point' },
+        { name: "비야프리아", eng: "Villafría", dist: 17.9, elev: 900, type: 'point' },
+        { name: "부르고스", eng: "Burgos", dist: 25.8, elev: 860, type: 'end' },
     ];
 
     const totalDist = 25.8; 
@@ -252,16 +254,42 @@
     points.forEach((p, index) => {
         if (index >= points.length - 1) return;
         
-        const nextP = points[index + 1];
+        // hidden 타입 포인트는 건너뛰기
+        if (p.type === 'hidden') return;
+        
+        // 다음 visible 포인트 찾기 (hidden 포인트 건너뛰기)
+        let nextVisibleIndex = index + 1;
+        while (nextVisibleIndex < points.length && points[nextVisibleIndex].type === 'hidden') {
+            nextVisibleIndex++;
+        }
+        
+        // 다음 visible 포인트가 없으면 종료
+        if (nextVisibleIndex >= points.length) return;
+        
+        const nextP = points[nextVisibleIndex];
         const distDiff = Math.abs(nextP.dist - p.dist).toFixed(1);
+        
+        // 구간 내에 hidden 포인트가 있는지 확인
+        let hasHidden = false;
+        let hiddenElev = null;
+        let hiddenDist = null;
+        for (let i = index + 1; i < nextVisibleIndex; i++) {
+            if (points[i].type === 'hidden') {
+                hasHidden = true;
+                hiddenElev = points[i].elev;
+                hiddenDist = points[i].dist;
+                break;
+            }
+        }
         
         const currentX = getX(p.dist);
         const nextX = getX(nextP.dist);
         const currentY = getY(p.elev);
         const nextY = getY(nextP.elev);
         
-        const midX = (currentX + nextX) / 2;
-        const midY = (currentY + nextY) / 2;
+        // hidden 포인트가 있으면 그 거리와 고도 위치에 badge 배치
+        const midX = hasHidden && hiddenDist !== null ? getX(hiddenDist) : (currentX + nextX) / 2;
+        const midY = hasHidden && hiddenElev ? getY(hiddenElev) : (currentY + nextY) / 2;
         
         const badgeW = 52;
         const badgeH = 24;
@@ -295,43 +323,49 @@
         const isStart = index === 0;
         const isEnd = index === points.length - 1;
 
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(x, axisY - 10);
-        ctx.strokeStyle = "rgba(254, 243, 199, 0.5)"; // 연한 노란색 톤
-        ctx.setLineDash([4, 4]);
-        ctx.lineWidth = 1;
-        ctx.stroke();
-        ctx.setLineDash([]);
+        // hidden 타입이면 점선과 마커 표시하지 않음
+        if (p.type !== 'hidden') {
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x, axisY - 10);
+            ctx.strokeStyle = "rgba(254, 243, 199, 0.5)"; // 연한 노란색 톤
+            ctx.setLineDash([4, 4]);
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.setLineDash([]);
 
-        // 모든 지점을 동일한 스타일로 표시
-        ctx.beginPath();
-        ctx.arc(x, y, 6, 0, Math.PI * 2);
-        ctx.fillStyle = "#ffffff";
-        ctx.fill();
-        ctx.lineWidth = 2.5;
-        ctx.strokeStyle = "#f97316"; // 오렌지 계열
-        ctx.stroke();
+            // 모든 지점을 동일한 스타일로 표시
+            ctx.beginPath();
+            ctx.arc(x, y, 6, 0, Math.PI * 2);
+            ctx.fillStyle = "#ffffff";
+            ctx.fill();
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = "#f97316"; // 오렌지 계열
+            ctx.stroke();
+        }
 
-        const labelY = y - 40;
-        const labelX = x;
-        
-        ctx.textAlign = "center";
+        // hidden 타입이면 텍스트 표시하지 않음
+        if (p.type !== 'hidden') {
+            const labelY = y - 40;
+            const labelX = x;
+            
+            ctx.textAlign = "center";
 
-        ctx.font = "700 22px 'Pretendard'";
-        ctx.fillStyle = "#2d3436";
-        ctx.shadowColor = "rgba(255,255,255,0.9)";
-        ctx.shadowBlur = 4;
-        ctx.fillText(p.name, labelX, labelY);
-        ctx.shadowBlur = 0;
+            ctx.font = "700 22px 'Pretendard'";
+            ctx.fillStyle = "#2d3436";
+            ctx.shadowColor = "rgba(255,255,255,0.9)";
+            ctx.shadowBlur = 4;
+            ctx.fillText(p.name, labelX, labelY);
+            ctx.shadowBlur = 0;
 
-        ctx.font = "500 14px 'Pretendard'";
-        ctx.fillStyle = "#6b7280";
-        ctx.fillText(p.eng, labelX, labelY + 18);
-        
-        ctx.font = "600 14px 'Pretendard'";
-        ctx.fillStyle = "#f97316"; // 오렌지 계열
-        ctx.fillText(`${p.elev}m`, labelX, labelY - 20);
+            ctx.font = "500 14px 'Pretendard'";
+            ctx.fillStyle = "#6b7280";
+            ctx.fillText(p.eng, labelX, labelY + 18);
+            
+            ctx.font = "600 14px 'Pretendard'";
+            ctx.fillStyle = "#f97316"; // 오렌지 계열
+            ctx.fillText(`${p.elev}m`, labelX, labelY - 20);
+        }
     });
 
     // 6. 로고 이미지 추가 (그래프 내부 왼쪽 여백, 흰색 여백에 잘 보이게)
@@ -341,8 +375,8 @@
         const logoWidth = 250;
         const logoHeight = (logo.height / logo.width) * logoWidth;
         
-        // 그래프 내부 오른쪽 상단에 배치
-        const logoX = width - padding.right - logoWidth - 60;
+        // 그래프 내부 왼쪽 상단에 배치
+        const logoX = padding.left + 60;
         const logoY = padding.top + 20;
                 
         // 로고 그리기 (마지막에 그려서 다른 요소 위에 표시)
