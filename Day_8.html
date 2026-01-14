@@ -60,22 +60,19 @@
     const canvas = document.getElementById('caminoCanvas');
     const ctx = canvas.getContext('2d');
     
-    // 데이터 정의 (이동 순서대로) - Pamplona → Puente la Reina 루트
+    // 데이터 정의 (이동 순서대로) - Nájera → Logroño 루트
     const points = [
-        { name: "팜플로나", eng: "Pamplona", dist: 0, elev: 450, type: 'start' },
-        { name: "시수르메노르", eng: "Cizur Menor", dist: 4.9, elev: 450, type: 'point' },
-        { name: "사리키에기", eng: "Zariquiegui", dist: 11.0, elev: 600, type: 'point' },
-        { name: "용서의언덕", eng: "Alto del Perdón", dist: 13.3, elev: 780, type: 'point' },
-        { name: "우테르가", eng: "Uterga", dist: 16.8, elev: 500, type: 'point' },
-        { name: "오바노스", eng: "Óbanos", dist: 21.3, elev: 430, type: 'point' },
-        { name: "푸엔테라레이나", eng: "Puente la Reina", dist: 23.9, elev: 350, type: 'end' },
+        { name: "나헤라", eng: "Nájera", dist: 0, elev: 520, type: 'start' },
+        { name: "벤토사", eng: "Ventosa", dist: 10.0, elev: 650, type: 'point' },
+        { name: "나바레테", eng: "Navarrete", dist: 16.6, elev: 520, type: 'point' },
+        { name: "로그로뇨", eng: "Logroño", dist: 29.0, elev: 400, type: 'end' },
     ];
 
-    const totalDist = 23.9; 
+    const totalDist = 29.0; 
     const yMin = 300; 
     const yMax = 800; 
 
-    const padding = { top: 60, right: 100, bottom: 90, left: 120 }; 
+    const padding = { top: 60, right: 100, bottom: 90, left: 60 }; 
     const width = canvas.width;
     const height = canvas.height;
     const graphWidth = width - padding.left - padding.right;
@@ -289,7 +286,7 @@
         ctx.fillText(`${distDiff}km`, midX, midY + 1); 
     });
 
-    // 6. 포인트 마커
+    // 5. 포인트 마커
     points.forEach((p, index) => {
         const x = getX(p.dist);
         const y = getY(p.elev);
@@ -305,141 +302,46 @@
         ctx.stroke();
         ctx.setLineDash([]);
 
-        // 용서의 언덕은 시그니처 상징물로 표시
-        const isAltoPerdon = p.name === "용서의언덕";
+        // 모든 지점을 동일한 스타일로 표시
+        ctx.beginPath();
+        ctx.arc(x, y, 6, 0, Math.PI * 2);
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = "#f97316"; // 오렌지 계열
+        ctx.stroke();
+
+        const labelY = y - 40;
+        const labelX = x;
         
-        if (isAltoPerdon) {
-            // 별 모양 그리기
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.beginPath();
-            const spikes = 5; // 별의 뾰족한 부분 개수
-            const outerRadius = 12; // 외부 반지름
-            const innerRadius = 6; // 내부 반지름
-            
-            for (let i = 0; i < spikes * 2; i++) {
-                const radius = i % 2 === 0 ? outerRadius : innerRadius;
-                const angle = (Math.PI * i) / spikes - Math.PI / 2;
-                const px = Math.cos(angle) * radius;
-                const py = Math.sin(angle) * radius;
-                if (i === 0) {
-                    ctx.moveTo(px, py);
-                } else {
-                    ctx.lineTo(px, py);
-                }
-            }
-            ctx.closePath();
-            ctx.fillStyle = "#ffd700"; // 밝은 금색 (더 눈에 띄게)
-            ctx.fill();
-            ctx.strokeStyle = "#ff8c00"; // 진한 오렌지 (대비를 높이기)
-            ctx.lineWidth = 3;
-            ctx.stroke();
-            ctx.restore();
-        } else {
-            // 일반 지점은 원형 마커
-            ctx.beginPath();
-            ctx.arc(x, y, 6, 0, Math.PI * 2);
-            ctx.fillStyle = "#ffffff";
-            ctx.fill();
-            ctx.lineWidth = 2.5;
-            ctx.strokeStyle = "#f97316"; // 오렌지 계열
-            ctx.stroke();
-        }
+        ctx.textAlign = "center";
 
-        // 사리키에기는 오른쪽에 표시
-        const isZariquiegui = p.name === "사리키에기";
+        ctx.font = "700 22px 'Pretendard'";
+        ctx.fillStyle = "#2d3436";
+        ctx.shadowColor = "rgba(255,255,255,0.9)";
+        ctx.shadowBlur = 4;
+        ctx.fillText(p.name, labelX, labelY);
+        ctx.shadowBlur = 0;
+
+        ctx.font = "500 14px 'Pretendard'";
+        ctx.fillStyle = "#6b7280";
+        ctx.fillText(p.eng, labelX, labelY + 18);
         
-        if (isZariquiegui) {
-            ctx.textAlign = "left";
-            const labelX = x; // 포인트 우측으로 오프셋
-            const labelY = y - 40;
-            
-            ctx.font = "700 22px 'Pretendard'";
-            ctx.fillStyle = "#2d3436";
-            ctx.shadowColor = "rgba(255,255,255,0.9)";
-            ctx.shadowBlur = 4;
-            ctx.fillText(p.name, labelX, labelY);
-            ctx.shadowBlur = 0;
-
-            ctx.font = "500 14px 'Pretendard'";
-            ctx.fillStyle = "#6b7280";
-            ctx.fillText(p.eng, labelX, labelY + 18);
-            
-            ctx.font = "600 14px 'Pretendard'";
-            ctx.fillStyle = "#f97316"; // 오렌지 계열
-            ctx.fillText(`${p.elev}m`, labelX, labelY - 20);
-        } else {
-            ctx.textAlign = "center";
-            const labelY = y - 40;
-            // 푸엔테라레이나는 좌측으로 5px 이동
-            const isPuente = p.name === "푸엔테라레이나";
-            const labelX = isPuente ? x - 10 : x;
-
-            ctx.font = "700 22px 'Pretendard'";
-            ctx.fillStyle = "#2d3436";
-            ctx.shadowColor = "rgba(255,255,255,0.9)";
-            ctx.shadowBlur = 4;
-            ctx.fillText(p.name, labelX, labelY);
-            ctx.shadowBlur = 0;
-
-            ctx.font = "500 14px 'Pretendard'";
-            ctx.fillStyle = "#6b7280";
-            ctx.fillText(p.eng, labelX, labelY + 18);
-            
-            ctx.font = "600 14px 'Pretendard'";
-            ctx.fillStyle = "#f97316"; // 오렌지 계열
-            ctx.fillText(`${p.elev}m`, labelX, labelY - 20);
-        }
+        ctx.font = "600 14px 'Pretendard'";
+        ctx.fillStyle = "#f97316"; // 오렌지 계열
+        ctx.fillText(`${p.elev}m`, labelX, labelY - 20);
     });
 
-    // 6-1. 좌측 상단에 별 아이콘 설명 추가
-    const legendX = padding.left + 10;
-    const legendY = padding.top - 10;
-    
-    // 별 아이콘 그리기
-    ctx.save();
-    ctx.translate(legendX - 10 , legendY + 12);
-    ctx.beginPath();
-    const spikes = 5;
-    const outerRadius = 8;
-    const innerRadius = 4;
-    
-    for (let i = 0; i < spikes * 2; i++) {
-        const radius = i % 2 === 0 ? outerRadius : innerRadius;
-        const angle = (Math.PI * i) / spikes - Math.PI / 2;
-        const px = Math.cos(angle) * radius;
-        const py = Math.sin(angle) * radius;
-        if (i === 0) {
-            ctx.moveTo(px, py);
-        } else {
-            ctx.lineTo(px, py);
-        }
-    }
-    ctx.closePath();
-    ctx.fillStyle = "#ffd700"; // 밝은 금색
-    ctx.fill();
-    ctx.strokeStyle = "#ff8c00"; // 진한 오렌지
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.restore();
-    
-    // 설명 텍스트
-    ctx.textAlign = "left";
-    ctx.font = "500 13px 'Pretendard'";
-    ctx.fillStyle = "#6b7280";
-    ctx.fillText(": 시그니처 상징물", legendX + 4, legendY + 12);
-
-    // 7. 로고 이미지 추가 (그래프 내부 왼쪽 여백, 흰색 여백에 잘 보이게)
+    // 6. 로고 이미지 추가 (그래프 내부 왼쪽 여백, 흰색 여백에 잘 보이게)
     const logo = new Image();
     logo.onload = function() {
         // 로고 크기 조정 (Day_1A.html과 동일하게)
         const logoWidth = 250;
         const logoHeight = (logo.height / logo.width) * logoWidth;
         
-        // 그래프 내부 왼쪽 여백에 배치 (그래프와 겹치지 않는 흰색 여백)
-        // 그래프 왼쪽 끝 근처에 배치하되, 그래프 선과 겹치지 않도록
-        const logoX = 1300; // 왼쪽 여백 (padding.left보다 왼쪽)
-        const logoY = padding.top + (graphHeight / 2) - (logoHeight / 2) - 100; // 그래프 세로 중앙
+        // 그래프 내부 오른쪽 상단에 배치
+        const logoX = width - padding.right - logoWidth - 60;
+        const logoY = padding.top + 20;
                 
         // 로고 그리기 (마지막에 그려서 다른 요소 위에 표시)
         ctx.drawImage(logo, logoX, logoY, logoWidth, logoHeight);
