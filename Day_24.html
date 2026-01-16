@@ -67,7 +67,7 @@
         { name: "깜포나라야", eng: "Camponaraya", dist: 9.7, elev: 500, type: 'point' },
         { name: "까까벨로스", eng: "Cacabelos", dist: 15.4, elev: 480, type: 'point' },
         { name: "피에로스", eng: "Pieros", dist: 17.5, elev: 520, type: 'point' },
-        { name: "발투이예", eng: "Valtuille de Arriba", dist: 19.4, elev: 560, type: 'point' },
+        { name: "발투이예", eng: "Valtuille de Arriba", dist: 18.4, elev: 560, type: 'point' },
         { name: "비야프랑카", eng: "Villafranca del Bierzo", dist: 23.2, elev: 510, type: 'end' },
 
     ];
@@ -358,6 +358,16 @@
             // 발베르데: 우측으로 20px 이동
             if (p.name === "발베르데") {
                 labelX = x + 30;
+            }
+
+            // 피에로스: 우측으로 10px 이동
+            if (p.name === "피에로스") {
+                labelX = x + 25;
+            }
+
+            // 발투이예: 좌측으로 10px 이동
+            if (p.name === "발투이예") {
+                labelX = x - 20;
             }
             
             ctx.textAlign = "center";
