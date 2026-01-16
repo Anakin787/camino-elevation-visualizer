@@ -410,42 +410,6 @@
         }
     });
 
-    // 6-1. 좌측 상단에 별 아이콘 설명 추가
-    const legendX = padding.left + 10;
-    const legendY = padding.top - 10;
-    
-    // 별 아이콘 그리기
-    ctx.save();
-    ctx.translate(legendX - 10 , legendY + 12);
-    ctx.beginPath();
-    const spikes = 5;
-    const outerRadius = 8;
-    const innerRadius = 4;
-    
-    for (let i = 0; i < spikes * 2; i++) {
-        const radius = i % 2 === 0 ? outerRadius : innerRadius;
-        const angle = (Math.PI * i) / spikes - Math.PI / 2;
-        const px = Math.cos(angle) * radius;
-        const py = Math.sin(angle) * radius;
-        if (i === 0) {
-            ctx.moveTo(px, py);
-        } else {
-            ctx.lineTo(px, py);
-        }
-    }
-    ctx.closePath();
-    ctx.fillStyle = "#ffd700"; // 밝은 금색
-    ctx.fill();
-    ctx.strokeStyle = "#ff8c00"; // 진한 오렌지
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.restore();
-    
-    // 설명 텍스트
-    ctx.textAlign = "left";
-    ctx.font = "500 13px 'Pretendard'";
-    ctx.fillStyle = "#6b7280";
-    ctx.fillText(": 시그니처 상징물", legendX + 4, legendY + 12);
 
     // 6. 로고 이미지 추가 (그래프 내부 왼쪽 여백, 흰색 여백에 잘 보이게)
     const logo = new Image();
